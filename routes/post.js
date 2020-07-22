@@ -17,7 +17,7 @@ const {
 } = require('../controllers/post');
 const { requireSignin } = require('../controllers/auth');
 const { userById } = require('../controllers/user');
-const { createPostValidator } = require('../validator');
+const { createPostValidator } = require('../validators');
 
 const router = express.Router();
 

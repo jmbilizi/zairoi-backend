@@ -110,7 +110,6 @@ exports.isPoster = (req, res, next) => {
   next();
 };
 
-
 exports.updatePost = (req, res, next) => {
   let form = new formidable.IncomingForm();
   form.keepExtensions = true;
@@ -239,7 +238,6 @@ exports.uncomment = (req, res) => {
     });
 };
 
-
 exports.updateComment = (req, res) => {
   let comment = req.body.comment;
 
@@ -270,4 +268,3 @@ exports.updateComment = (req, res) => {
     }
   });
 };
-
