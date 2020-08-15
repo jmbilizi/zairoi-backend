@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 // import controller
@@ -20,20 +20,22 @@ const {
   hasAuthorization,
 } = require("../controllers/user");
 
-const { requireSignin, adminMiddleware } = require('../controllers/auth');
+const { requireSignin, adminMiddleware } = require("../controllers/auth");
 // const { read, update } = require('../controllers/user');
 
-router.get('/user/:id', requireSignin, read);
-router.put('/user/update', requireSignin, update);
-router.put('/admin/update', requireSignin, adminMiddleware, update);
+router.get("/user/:id", requireSignin, read);
+router.put("/user/update", requireSignin, update);
+router.put("/admin/update", requireSignin, adminMiddleware, update);
 
 router.put("/user/follow", requireSignin, addFollowing, addFollower);
 router.put("/user/unfollow", requireSignin, removeFollowing, removeFollower);
 
 router.get("/users", allUsers);
 router.get("/user/:userId", requireSignin, getUser);
-router.put("/user/:userId", requireSignin, hasAuthorization, updateUser);
-router.delete("/user/:userId", requireSignin, hasAuthorization, deleteUser);
+router.put("/user/:userId", requireSignin, updateUser);
+router.delete("/user/:userId", requireSignin, deleteUser);
+// router.put("/user/:userId", requireSignin, hasAuthorization, updateUser);
+// router.delete("/user/:userId", requireSignin, hasAuthorization, deleteUser);
 // photo
 router.get("/user/photo/:userId", userPhoto);
 
