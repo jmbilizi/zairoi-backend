@@ -18,6 +18,7 @@ const {
   removeFollower,
   findPeople,
   hasAuthorization,
+  purchaseHistory,
 } = require("../controllers/user");
 
 const { requireSignin, adminMiddleware } = require("../controllers/auth");
@@ -43,6 +44,12 @@ router.get("/user/photo/:userId", userPhoto);
 router.get("/user/findpeople/:userId", requireSignin, findPeople);
 
 // any route containing :userId, our app will first execute userByID()
+router.get(
+  "/orders/by/user/:userId",
+  requireSignin,
+  hasAuthorization,
+  purchaseHistory
+);
 router.param("userId", userById);
 
 //old and new
