@@ -43,6 +43,11 @@ router.get("/user/photo/:userId", userPhoto);
 // who to follow
 router.get("/user/findpeople/:userId", requireSignin, findPeople);
 
+router.get("/secret", requireSignin, (req, res) => {
+  res.json({
+    user: "got here yay",
+  });
+});
 // any route containing :userId, our app will first execute userByID()
 router.get(
   "/orders/by/user/:userId",
