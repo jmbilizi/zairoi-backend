@@ -123,6 +123,7 @@ exports.signin = (req, res) => {
 
 exports.requireSignin = expressJwt({
   secret: process.env.JWT_SECRET, // req.user._id
+  userProperty: "auth",
 });
 
 exports.adminMiddleware = (req, res, next) => {
