@@ -24,30 +24,10 @@ mongoose
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");
-
-// // apiDocs
-// app.get("/api", (req, res) => {
-//   fs.readFile("docs/apiDocs.json", (err, data) => {
-//     if (err) {
-//       res.status(400).json({
-//         error: err,
-//       });
-//     }
-//     const docs = JSON.parse(data);
-//     res.json(docs);
-//   });
-// });
-
-// app middlewares
-// app.use(morgan("dev"));
-// app.use(bodyParser.json());
-
-// app.use(cors()); // allows all origins
-// app.use(cors({ origin: process.env.CLIENT_URL }));
-
-// middleware
-// app.use(authRoutes);
-// app.use(userRoutes);
+const categoryRoutes = require("./routes/category");
+const productRoutes = require("./routes/product");
+const braintreeRoutes = require("./routes/braintree");
+const orderRoutes = require("./routes/order");
 
 // app middleware -
 app.use(morgan("dev"));
@@ -59,9 +39,13 @@ app.use(expressValidator());
 app.use(cors({ origin: process.env.CLIENT_URL }));
 
 // middleware
-app.use(postRoutes);
-app.use(authRoutes);
-app.use(userRoutes);
+app.use("/api", postRoutes);
+app.use("/api", authRoutes);
+app.use("/api", userRoutes);
+app.use("/api", categoryRoutes);
+app.use("/api", productRoutes);
+app.use("/api", braintreeRoutes);
+app.use("/api", orderRoutes);
 
 const port = process.env.PORT;
 app.listen(port, () => {

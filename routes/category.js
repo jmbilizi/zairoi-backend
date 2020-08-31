@@ -14,7 +14,7 @@ router.get('/category/:categoryId', read);
 router.post(
   "/category/create/:userId",
   requireSignin,
-  adminMiddleware,
+  hasAuthorization,
   create
 );
 // router.put('/category/:categoryUpdateId/:userId', requireSignin, isAuth, isAdmin, update);
@@ -23,7 +23,7 @@ router.post(
 router.put(
   "/category/:categoryId/:userId",
   requireSignin,
-  adminMiddleware,
+  hasAuthorization,
   update
 );
 
@@ -31,7 +31,7 @@ router.put(
 router.delete(
   "/category/:categoryId/:userId",
   requireSignin,
-  adminMiddleware,
+  hasAuthorization,
   remove
 );
 router.get('/categories', list);
