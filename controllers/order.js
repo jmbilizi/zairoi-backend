@@ -2,6 +2,7 @@ const { Order, CartItem } = require('../models/order');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 // sendgrid for email npm i @sendgrid/mail
 const sgMail = require('@sendgrid/mail');
+require("dotenv").config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.orderById = (req, res, next, id) => {
