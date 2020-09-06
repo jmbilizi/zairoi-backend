@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const { ObjectId } = mongoose.Schema;
 const Post = require("./post");
 // user schema
-const userScheama = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -56,7 +56,7 @@ const userScheama = new mongoose.Schema(
 );
 
 // virtual
-userScheama
+userSchema
   .virtual("password")
   .set(function (password) {
     this._password = password;
@@ -70,7 +70,7 @@ userScheama
   });
 
 // methods
-userScheama.methods = {
+userSchema.methods = {
   authenticate: function (plainText) {
     return this.encryptPassword(plainText) === this.hashed_password; // true false
   },
@@ -93,9 +93,9 @@ userScheama.methods = {
 };
 
 // pre middleware
-userScheama.pre("remove", function (next) {
+userSchema.pre("remove", function (next) {
   Post.remove({ postedBy: this._id }).exec();
   next();
 });
 
-module.exports = mongoose.model("User", userScheama);
+module.exports = mongoose.model("User", userSchema);
