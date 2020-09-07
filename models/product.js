@@ -40,6 +40,10 @@ const productSchema = new mongoose.Schema(
       required: false,
       type: Boolean,
     },
+    createdBy: {
+      type: ObjectId,
+      ref: "User",
+    },
   },
   { timestamps: true }
 );
