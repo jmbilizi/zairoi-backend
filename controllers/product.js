@@ -43,6 +43,10 @@ exports.create = (req, res) => {
 
         let product = new Product(fields);
 
+        req.profile.hashed_password = undefined;
+        req.profile.salt = undefined;
+        product.soldBy = req.profile;
+
         // 1kb = 1000
         // 1mb = 1000000
 
@@ -67,6 +71,38 @@ exports.create = (req, res) => {
             res.json(result);
         });
     });
+};
+
+exports.soldByUser = (req, res) => {
+  Post.find({ postedBy: req.profile._id })
+    .populate("soldBy", "_id name role email")
+    .select("_id name description price category quantity shipping photo")
+    .sort("_createdAt")
+    .exec((err, products) => {
+      if (err) {
+        return res.status(400).json({
+          error: err,
+        });
+      }
+      res.json(products);
+    });
+};
+
+exports.isSeller = (req, res, next) => {
+  let sameUser = req.product && req.auth && req.product.soldBy._id == req.auth._id;
+  let adminUser = req.product && req.auth && req.auth.role === "admin";
+
+  // console.log("req.post ", req.post, " req.auth ", req.auth);
+  // console.log("SAMEUSER: ", sameUser, " ADMINUSER: ", adminUser);
+
+  let isSeller = sameUser || adminUser;
+
+  if (!isSeller) {
+    return res.status(403).json({
+      error: "User is not authorized",
+    });
+  }
+  next();
 };
 
 exports.remove = (req, res) => {
