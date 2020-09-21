@@ -73,7 +73,7 @@ exports.create = (req, res) => {
     });
 };
 
-exports.soldByUser = (req, res) => {
+exports.productsByUser = (req, res) => {
   Post.find({ postedBy: req.profile._id })
     .populate("soldBy", "_id name role email")
     .select("_id name description price category quantity shipping photo")

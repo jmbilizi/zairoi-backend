@@ -7,6 +7,8 @@ const {
   read,
   remove,
   update,
+  productsByUser,
+  isSeller,
   list,
   listRelated,
   listCategories,
@@ -22,17 +24,18 @@ const { requireSignin } = require("../controllers/auth");
 const { userById } = require("../controllers/user");
 
 router.get("/product/:productId", read);
-router.post("/product/create/:userId", requireSignin, hasAuthorization, create);
+router.post("/product/create/:userId", requireSignin, create);
+router.get("/products/by/:userId", requireSignin, productsByUser);
 router.delete(
   "/product/:productId/:userId",
   requireSignin,
-  hasAuthorization,
+  isSeller,
   remove
 );
 router.put(
   "/product/:productId/:userId",
   requireSignin,
-  hasAuthorization,
+  isSeller,
   update
 );
 
