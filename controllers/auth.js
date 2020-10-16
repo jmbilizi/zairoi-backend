@@ -109,9 +109,13 @@ exports.signin = (req, res) => {
       });
     }
     // generate a token and send to client
-    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { _id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
     const { _id, name, email, role } = user;
 
     return res.json({
@@ -257,9 +261,13 @@ exports.googleLogin = (req, res) => {
       if (email_verified) {
         User.findOne({ email }).exec((err, user) => {
           if (user) {
-            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-              expiresIn: "7d",
-            });
+            const token = jwt.sign(
+              { _id: user._id, role: user.role },
+              process.env.JWT_SECRET,
+              {
+                expiresIn: "7d",
+              }
+            );
             const { _id, email, name, role } = user;
             return res.json({
               token,
@@ -276,7 +284,7 @@ exports.googleLogin = (req, res) => {
                 });
               }
               const token = jwt.sign(
-                { _id: data._id },
+                { _id: data._id, role: data.role },
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
               );
@@ -331,7 +339,7 @@ exports.facebookLogin = (req, res) => {
                 });
               }
               const token = jwt.sign(
-                { _id: data._id },
+                { _id: data._id, role: data.role },
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
               );
