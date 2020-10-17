@@ -116,11 +116,11 @@ exports.signin = (req, res) => {
         expiresIn: "7d",
       }
     );
-    const { _id, name, email, role } = user;
+    const { _id, name, email, role, following } = user;
 
     return res.json({
       token,
-      user: { _id, name, email, role },
+      user: { _id, name, email, role, following },
     });
   });
 };
@@ -268,10 +268,10 @@ exports.googleLogin = (req, res) => {
                 expiresIn: "7d",
               }
             );
-            const { _id, email, name, role } = user;
+            const { _id, email, name, role, following } = user;
             return res.json({
               token,
-              user: { _id, email, name, role },
+              user: { _id, email, name, role, following },
             });
           } else {
             let password = email + process.env.JWT_SECRET;
@@ -288,10 +288,10 @@ exports.googleLogin = (req, res) => {
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
               );
-              const { _id, email, name, role } = data;
+              const { _id, email, name, role, following } = data;
               return res.json({
                 token,
-                user: { _id, email, name, role },
+                user: { _id, email, name, role, following },
               });
             });
           }
@@ -323,10 +323,10 @@ exports.facebookLogin = (req, res) => {
             const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
               expiresIn: "7d",
             });
-            const { _id, email, name, role } = user;
+            const { _id, email, name, role, following } = user;
             return res.json({
               token,
-              user: { _id, email, name, role },
+              user: { _id, email, name, role, following },
             });
           } else {
             let password = email + process.env.JWT_SECRET;
@@ -343,10 +343,10 @@ exports.facebookLogin = (req, res) => {
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
               );
-              const { _id, email, name, role } = data;
+              const { _id, email, name, role, following } = data;
               return res.json({
                 token,
-                user: { _id, email, name, role },
+                user: { _id, email, name, role, following },
               });
             });
           }
