@@ -5,8 +5,8 @@ const _ = require("lodash");
 
 exports.postById = (req, res, next, id) => {
   Post.findById(id)
-    .populate("postedBy", "_id name")
-    .populate("comments.postedBy", "_id name")
+    .populate("postedBy", "_id name role")
+    .populate("comments.postedBy", "_id name role")
     .populate("postedBy", "_id name role")
     .select("_id title body created likes comments photo")
     .exec((err, post) => {
@@ -36,8 +36,8 @@ exports.getPosts = async (req, res) => {
       return Post.find()
         .skip((currentPage - 1) * perPage)
         .populate("comments", "text created")
-        .populate("comments.postedBy", "_id name")
-        .populate("postedBy", "_id name")
+        .populate("comments.postedBy", "_id name role")
+        .populate("postedBy", "_id name role")
         .select("_id title body created likes")
         .limit(perPage)
         .sort({ created: -1 });
@@ -204,8 +204,8 @@ exports.comment = (req, res) => {
     { $push: { comments: comment } },
     { new: true }
   )
-    .populate("comments.postedBy", "_id name")
-    .populate("postedBy", "_id name")
+    .populate("comments.postedBy", "_id name role")
+    .populate("postedBy", "_id name role")
     .exec((err, result) => {
       if (err) {
         return res.status(400).json({
@@ -225,8 +225,8 @@ exports.uncomment = (req, res) => {
     { $pull: { comments: { _id: comment._id } } },
     { new: true }
   )
-    .populate("comments.postedBy", "_id name")
-    .populate("postedBy", "_id name")
+    .populate("comments.postedBy", "_id name role")
+    .populate("postedBy", "_id name role")
     .exec((err, result) => {
       if (err) {
         return res.status(400).json({
@@ -254,8 +254,8 @@ exports.updateComment = (req, res) => {
         { $push: { comments: comment, updated: new Date() } },
         { new: true }
       )
-        .populate("comments.postedBy", "_id name")
-        .populate("postedBy", "_id name")
+        .populate("comments.postedBy", "_id name role")
+        .populate("postedBy", "_id name role")
         .exec((err, result) => {
           if (err) {
             return res.status(400).json({
