@@ -18,7 +18,6 @@ exports.signup = (req, res) => {
         error: "Email is taken",
       });
     }
-
     const token = jwt.sign(
       { name, email, password },
       process.env.JWT_ACCOUNT_ACTIVATION,
@@ -116,11 +115,11 @@ exports.signin = (req, res) => {
         expiresIn: "7d",
       }
     );
-    const { _id, name, email, role, following } = user;
+    const { _id, name, email, role, following, followers } = user;
 
     return res.json({
       token,
-      user: { _id, name, email, role, following },
+      user: { _id, name, email, role, following, followers },
     });
   });
 };
@@ -268,10 +267,10 @@ exports.googleLogin = (req, res) => {
                 expiresIn: "7d",
               }
             );
-            const { _id, email, name, role, following } = user;
+            const { _id, email, name, role, following, followers } = user;
             return res.json({
               token,
-              user: { _id, email, name, role, following },
+              user: { _id, email, name, role, following, followers },
             });
           } else {
             let password = email + process.env.JWT_SECRET;
@@ -288,10 +287,10 @@ exports.googleLogin = (req, res) => {
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
               );
-              const { _id, email, name, role, following } = data;
+              const { _id, email, name, role, following, followers } = data;
               return res.json({
                 token,
-                user: { _id, email, name, role, following },
+                user: { _id, email, name, role, following, followers },
               });
             });
           }
@@ -323,10 +322,10 @@ exports.facebookLogin = (req, res) => {
             const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
               expiresIn: "7d",
             });
-            const { _id, email, name, role, following } = user;
+            const { _id, email, name, role, following, followers } = user;
             return res.json({
               token,
-              user: { _id, email, name, role, following },
+              user: { _id, email, name, role, following, followers },
             });
           } else {
             let password = email + process.env.JWT_SECRET;
@@ -343,10 +342,10 @@ exports.facebookLogin = (req, res) => {
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
               );
-              const { _id, email, name, role, following } = data;
+              const { _id, email, name, role, following, followers } = data;
               return res.json({
                 token,
-                user: { _id, email, name, role, following },
+                user: { _id, email, name, role, following, followers },
               });
             });
           }
