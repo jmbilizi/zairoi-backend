@@ -15,7 +15,12 @@ var MessageSchema = new mongoose.Schema({
       read: { type: Boolean, default: false },
     },
   ],
-  content: String,
+  data: [
+    {
+      type: String,
+      content: Mixed,
+    },
+  ],
   time: {
     type: Date,
     default: Date.now,
