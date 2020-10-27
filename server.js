@@ -9,6 +9,43 @@ require("dotenv").config();
 
 const app = express();
 
+const port = process.env.PORT;
+const server = app.listen(port, () => {
+  console.log(`API is running on port ${port}`);
+});
+
+// //socket
+// const io = require("socket.io")(server);
+
+// const socketsConected = new Set();
+
+// io.on("connection", onConnected);
+
+// function onConnected(socket) {
+//   // console.log("Socket connected", socket.id);
+//   socketsConected.add(socket.id);
+//   console.log(socketsConected.size);
+//   console.log(socketsConected);
+//   io.emit("clients-total", socketsConected.size);
+
+//   socket.on("disconnect", () => {
+//     console.log("Socket disconnected", socket.id);
+//     socketsConected.delete(socket.id);
+//     console.log(socketsConected.size);
+//     console.log(socketsConected);
+//     io.emit("clients-total", socketsConected.size);
+//   });
+
+//   // socket.on("message", (data) => {
+//   //   // console.log(data)
+//   //   socket.broadcast.emit("chat-message", data);
+//   // });
+
+//   // socket.on("feedback", (data) => {
+//   //   socket.broadcast.emit("feedback", data);
+//   // });
+// }
+
 // connect to db
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -46,8 +83,3 @@ app.use("/api", categoryRoutes);
 app.use("/api", productRoutes);
 app.use("/api", braintreeRoutes);
 app.use("/api", orderRoutes);
-
-const port = process.env.PORT;
-app.listen(port, () => {
-  console.log(`API is running on port ${port}`);
-});
