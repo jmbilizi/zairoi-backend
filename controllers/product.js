@@ -41,7 +41,8 @@ exports.create = (req, res) => {
       !price ||
       !category ||
       !quantity ||
-      !shipping
+      !shipping ||
+      !files.photo
     ) {
       return res.status(400).json({
         error: "All fields are required",
