@@ -3,6 +3,8 @@ const _ = require("lodash");
 const fs = require("fs");
 const Product = require("../models/product");
 const { errorHandler } = require("../helpers/dbErrorHandler");
+const { getFileType, s3 } = require("./amazonS3");
+require("dotenv").config();
 
 exports.productById = (req, res, next, id) => {
   Product.findById(id)
@@ -25,7 +27,7 @@ exports.read = (req, res) => {
 
 exports.create = (req, res) => {
   let form = new formidable.IncomingForm();
-  form.keepExtensions = true;
+  // form.keepExtensions = true;
   form.parse(req, (err, fields, files) => {
     if (err) {
       return res.status(400).json({
@@ -41,8 +43,7 @@ exports.create = (req, res) => {
       !price ||
       !category ||
       !quantity ||
-      !shipping ||
-      !files.photo
+      !shipping
     ) {
       return res.status(400).json({
         error: "All fields are required",
@@ -55,28 +56,53 @@ exports.create = (req, res) => {
     req.profile.salt = undefined;
     product.soldBy = req.profile;
 
+    const { photo } = files;
     // 1kb = 1000
     // 1mb = 1000000
-
-    if (files.photo) {
-      // console.log("FILES PHOTO: ", files.photo);
-      if (files.photo.size > 1000000) {
-        return res.status(400).json({
-          error: "Image should be less than 1mb in size",
-        });
-      }
-      product.photo.data = fs.readFileSync(files.photo.path);
-      product.photo.contentType = files.photo.type;
+    // console.log("FILES PHOTO: ", files.photo);
+    if (!photo) {
+      return res.status(400).json({
+        error: "All fields are required",
+      });
     }
+    if (photo.size > 20000000) {
+      return res.status(400).json({
+        error: "Image should be less than 2mb in size",
+      });
+    }
+    // upload image to s3
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `products/${photo.size}${Date.now()}`,
+      Body: fs.readFileSync(photo.path),
+      ACL: "public-read",
+      ContentType: `image/*`,
+    };
 
-    product.save((err, result) => {
-      if (err) {
-        console.log("PRODUCT CREATE ERROR ", err);
-        return res.status(400).json({
-          error: errorHandler(err),
-        });
+    s3.upload(params, (error, data) => {
+      if (error) {
+        console.log(error);
+        res.status(400).json({ error: "File upload failed" });
       }
-      res.json(result);
+      if (data === undefined) {
+        console.log("Error: No File Selected!");
+        res.json({ error: "No File Selected" });
+      }
+      console.log("AWS UPLOAD RES DATA");
+      product.photo.url = data.Location;
+      product.photo.key = data.Key;
+      product.photo.contentType = data.contentType;
+
+      //save to db
+      product.save((err, result) => {
+        if (err) {
+          console.log("PRODUCT CREATE ERROR ", err);
+          return res.status(400).json({
+            error: errorHandler(err),
+          });
+        }
+        res.json(result);
+      });
     });
   });
 };
@@ -165,13 +191,6 @@ exports.update = (req, res) => {
     });
   });
 };
-
-/**
- * sell / arrival
- * by sell = /products?sortBy=sold&order=desc&limit=4
- * by arrival = /products?sortBy=createdAt&order=desc&limit=4
- * if no params are sent, then all products are returned
- */
 
 exports.list = (req, res) => {
   let order = req.query.order ? req.query.order : "asc";
