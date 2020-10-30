@@ -148,8 +148,24 @@ exports.remove = (req, res) => {
         error: errorHandler(err),
       });
     }
-    res.json({
-      message: "Product deleted successfully",
+    // remove the existing image from s3 before uploading new/updated one
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `${deletedProduct.photo.key}`,
+    };
+
+    s3.deleteObject(deleteParams, function (err, data) {
+      // if (err) {console.log("S3 DELETE ERROR DUING", err);
+      if (err) {
+        console.log("S3 DELETE ERROR DUING", err);
+        return res.status(400).json({
+          error: "Product Delete failed",
+        });
+      }
+      console.log("S3 DELETED DURING", data); // deleted
+      res.status(200).json({
+        message: "Product deleted successfully",
+      });
     });
   });
 };
