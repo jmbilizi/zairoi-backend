@@ -3,7 +3,7 @@ const _ = require("lodash");
 const fs = require("fs");
 const Product = require("../models/product");
 const { errorHandler } = require("../helpers/dbErrorHandler");
-const { getFileType, s3 } = require("./amazonS3");
+const { getFileType, s3, uploadParams, deleteParams } = require("./amazonS3");
 require("dotenv").config();
 
 exports.productById = (req, res, next, id) => {
@@ -56,7 +56,7 @@ exports.create = (req, res) => {
     req.profile.salt = undefined;
     product.soldBy = req.profile;
 
-    const { photo } = files;
+    let { photo } = files;
     // 1kb = 1000
     // 1mb = 1000000
     // console.log("FILES PHOTO: ", files.photo);
@@ -71,15 +71,7 @@ exports.create = (req, res) => {
       });
     }
     // upload image to s3
-    const params = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `products/${photo.size}${Date.now()}`,
-      Body: fs.readFileSync(photo.path),
-      ACL: "public-read",
-      ContentType: `image/*`,
-    };
-
-    s3.upload(params, (error, data) => {
+    s3.upload(uploadParams("products", photo), (error, data) => {
       if (error) {
         console.log(error);
         res.status(400).json({ error: "File upload failed" });
@@ -91,7 +83,7 @@ exports.create = (req, res) => {
       console.log("AWS UPLOAD RES DATA");
       product.photo.url = data.Location;
       product.photo.key = data.Key;
-      product.photo.contentType = data.contentType;
+      product.photo.contentType = data.type;
 
       //save to db
       product.save((err, result) => {
@@ -148,13 +140,9 @@ exports.remove = (req, res) => {
         error: errorHandler(err),
       });
     }
-    // remove the existing image from s3 before uploading new/updated one
-    const deleteParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
-      Key: `${deletedProduct.photo.key}`,
-    };
 
-    s3.deleteObject(deleteParams, function (err, data) {
+    // remove the existing image from s3 before uploading new/updated one
+    s3.deleteObject(deleteParams(deletedProduct), function (err, data) {
       // if (err) {console.log("S3 DELETE ERROR DUING", err);
       if (err) {
         console.log("S3 DELETE ERROR DUING", err);
@@ -172,7 +160,7 @@ exports.remove = (req, res) => {
 
 exports.update = (req, res) => {
   let form = new formidable.IncomingForm();
-  form.keepExtensions = true;
+  // form.keepExtensions = true;
   form.parse(req, (err, fields, files) => {
     if (err) {
       return res.status(400).json({
@@ -185,26 +173,64 @@ exports.update = (req, res) => {
 
     // 1kb = 1000
     // 1mb = 1000000
+    let { photo } = files;
 
-    if (files.photo) {
+    if (photo) {
       // console.log("FILES PHOTO: ", files.photo);
-      if (files.photo.size > 1000000) {
+      if (photo.size > 1000000) {
         return res.status(400).json({
           error: "Image should be less than 1mb in size",
         });
       }
-      product.photo.data = fs.readFileSync(files.photo.path);
-      product.photo.contentType = files.photo.type;
-    }
 
-    product.save((err, result) => {
-      if (err) {
-        return res.status(400).json({
-          error: errorHandler(err),
+      //delete product photo url
+      s3.deleteObject(deleteParams(product), function (err, data) {
+        // if (err) {console.log("S3 DELETE ERROR DUING", err);
+        if (err) {
+          console.log("S3 DELETE ERROR DUING", err);
+          return res.status(400).json({
+            error: "Product Delete failed",
+          });
+        }
+        console.log("S3 DELETED DURING", data);
+      });
+
+      //upload the new photo to s3
+      s3.upload(uploadParams("products", photo), (error, data) => {
+        if (error) {
+          console.log(error);
+          res.status(400).json({ error: "File upload failed" });
+        }
+        if (data === undefined) {
+          console.log("Error: No File Selected!");
+          res.json({ error: "No File Selected" });
+        }
+        console.log("AWS UPLOAD RES DATA");
+        product.photo.url = data.Location;
+        product.photo.key = data.Key;
+        product.photo.contentType = data.type;
+
+        //save to db
+        product.save((err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: errorHandler(err),
+            });
+          }
+          res.json(result);
         });
-      }
-      res.json(result);
-    });
+      });
+    } else {
+      //save to db
+      product.save((err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: errorHandler(err),
+          });
+        }
+        res.json(result);
+      });
+    }
   });
 };
 
