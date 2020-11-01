@@ -214,7 +214,6 @@ exports.list = (req, res) => {
   let limit = req.query.limit ? parseInt(req.query.limit) : 6;
 
   Product.find()
-    .select("-photo")
     .populate("category")
     .sort([[sortBy, order]])
     .limit(limit)
@@ -294,7 +293,6 @@ exports.listBySearch = (req, res) => {
   }
 
   Product.find(findArgs)
-    .select("-photo")
     .populate("category")
     .sort([[sortBy, order]])
     .skip(skip)
@@ -339,7 +337,7 @@ exports.listSearch = (req, res) => {
         });
       }
       res.json(products);
-    }).select("-photo");
+    });
   }
 };
 
