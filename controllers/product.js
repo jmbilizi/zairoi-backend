@@ -83,7 +83,8 @@ exports.create = (req, res) => {
       console.log("AWS UPLOAD RES DATA");
       product.photo.url = data.Location;
       product.photo.key = data.Key;
-      product.photo.contentType = data.type;
+      product.photo.name = photo.name;
+      product.photo.contentType = photo.type;
 
       //save to db
       product.save((err, result) => {
@@ -208,7 +209,8 @@ exports.update = (req, res) => {
         console.log("AWS UPLOAD RES DATA");
         product.photo.url = data.Location;
         product.photo.key = data.Key;
-        product.photo.contentType = data.type;
+        product.photo.name = photo.name;
+        product.photo.contentType = photo.type;
 
         //save to db
         product.save((err, result) => {
