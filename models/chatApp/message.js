@@ -19,10 +19,12 @@ var MessageSchema = new mongoose.Schema({
       read: { type: Boolean, default: false },
     },
   ],
-  body: {
-    type: String,
-    required: true,
-  },
+  body: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
   time: {
     type: Date,
     default: Date.now,
