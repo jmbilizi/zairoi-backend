@@ -9,13 +9,14 @@ require("dotenv").config();
 
 const app = express();
 
+// Port that the webserver listens to
 const port = process.env.PORT;
 const server = app.listen(port, () => {
   console.log(`API is running on port ${port}`);
 });
 
-// //socket
-// const io = require("socket.io")(server);
+//socket
+const io = require("socket.io").listen(server);
 
 // const socketsConected = new Set();
 
@@ -74,6 +75,12 @@ app.use(expressValidator());
 
 // app.use(cors()); // allows all origins
 app.use(cors({ origin: process.env.CLIENT_URL }));
+
+// Assign socket object to every request
+app.use(function (req, res, next) {
+  req.io = io;
+  next();
+});
 
 // middleware
 app.use("/api", postRoutes);
