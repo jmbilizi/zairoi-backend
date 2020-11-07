@@ -83,17 +83,27 @@ exports.createPost = (req, res, next) => {
         post.photo.key = data.Key;
         post.photo.name = photo.name;
         post.photo.contentType = photo.type;
+
+        //save to db
+        post.save((err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err,
+            });
+          }
+          res.json(result);
+        });
+      });
+    } else {
+      post.save((err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err,
+          });
+        }
+        res.json(result);
       });
     }
-
-    post.save((err, result) => {
-      if (err) {
-        return res.status(400).json({
-          error: err,
-        });
-      }
-      res.json(result);
-    });
   });
 };
 
@@ -173,16 +183,15 @@ exports.updatePost = (req, res, next) => {
         post.photo.key = data.Key;
         post.photo.name = photo.name;
         post.photo.contentType = photo.type;
-      });
-
-      //save to db
-      post.save((err, result) => {
-        if (err) {
-          return res.status(400).json({
-            error: err,
-          });
-        }
-        res.json(result);
+        //save to db
+        post.save((err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err,
+            });
+          }
+          res.json(result);
+        });
       });
     } else {
       //save to db
