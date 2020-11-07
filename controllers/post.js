@@ -2,13 +2,15 @@ const Post = require("../models/post");
 const formidable = require("formidable");
 const fs = require("fs");
 const _ = require("lodash");
+const { getFileType, s3, uploadParams, deleteParams } = require("./amazonS3");
+require("dotenv").config();
 
 exports.postById = (req, res, next, id) => {
   Post.findById(id)
     .populate("postedBy", "_id name role")
     .populate("comments.postedBy", "_id name role")
     .populate("postedBy", "_id name role")
-    .select("_id title body created likes comments photo")
+    .select("_id title body created likes comments file")
     .exec((err, post) => {
       if (err || !post) {
         return res.status(400).json({
@@ -63,10 +65,30 @@ exports.createPost = (req, res, next) => {
     req.profile.salt = undefined;
     post.postedBy = req.profile;
 
-    if (files.photo) {
-      post.photo.data = fs.readFileSync(files.photo.path);
-      post.photo.contentType = files.photo.type;
+    if (files.length > 0) {
+      // post.photo.data = fs.readFileSync(files.photo.path);
+      // post.photo.contentType = files.photo.type;
+      //save to s3
+      for (let item of files) {
+        //upload image to s3
+        s3.upload(uploadParams("posts", item), (error, data) => {
+          if (error) {
+            console.log(error);
+            res.status(400).json({ error: "File upload failed" });
+          }
+          if (data === undefined) {
+            console.log("Error: No File Selected!");
+            res.json({ error: "No File Selected" });
+          }
+          console.log("AWS UPLOAD RES DATA");
+          product.file.url = data.Location;
+          product.file.key = data.Key;
+          product.file.name = item.name;
+          product.file.contentType = item.type;
+        });
+      }
     }
+
     post.save((err, result) => {
       if (err) {
         return res.status(400).json({
