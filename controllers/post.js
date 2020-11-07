@@ -173,16 +173,16 @@ exports.updatePost = (req, res, next) => {
         product.photo.key = data.Key;
         product.photo.name = photo.name;
         product.photo.contentType = photo.type;
+      });
 
-        //save to db
-        post.save((err, result) => {
-          if (err) {
-            return res.status(400).json({
-              error: err,
-            });
-          }
-          res.json(result);
-        });
+      //save to db
+      post.save((err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err,
+          });
+        }
+        res.json(result);
       });
     } else {
       //save to db
