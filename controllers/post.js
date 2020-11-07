@@ -79,10 +79,10 @@ exports.createPost = (req, res, next) => {
           res.json({ error: "No File Selected" });
         }
         console.log("AWS UPLOAD RES DATA");
-        product.photo.url = data.Location;
-        product.photo.key = data.Key;
-        product.photo.name = photo.name;
-        product.photo.contentType = photo.type;
+        post.photo.url = data.Location;
+        post.photo.key = data.Key;
+        post.photo.name = photo.name;
+        post.photo.contentType = photo.type;
       });
     }
 
@@ -169,10 +169,10 @@ exports.updatePost = (req, res, next) => {
           res.json({ error: "No File Selected" });
         }
         console.log("AWS UPLOAD RES DATA");
-        product.photo.url = data.Location;
-        product.photo.key = data.Key;
-        product.photo.name = photo.name;
-        product.photo.contentType = photo.type;
+        post.photo.url = data.Location;
+        post.photo.key = data.Key;
+        post.photo.name = photo.name;
+        post.photo.contentType = photo.type;
       });
 
       //save to db
