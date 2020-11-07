@@ -10,7 +10,7 @@ exports.postById = (req, res, next, id) => {
     .populate("postedBy", "_id name role")
     .populate("comments.postedBy", "_id name role")
     .populate("postedBy", "_id name role")
-    .select("_id title body created likes comments file")
+    .select("_id title body created likes comments photo")
     .exec((err, post) => {
       if (err || !post) {
         return res.status(400).json({
@@ -65,28 +65,25 @@ exports.createPost = (req, res, next) => {
     req.profile.salt = undefined;
     post.postedBy = req.profile;
 
-    if (files.length > 0) {
-      // post.photo.data = fs.readFileSync(files.photo.path);
-      // post.photo.contentType = files.photo.type;
-      //save to s3
-      for (let item of files) {
-        //upload image to s3
-        s3.upload(uploadParams("posts", item), (error, data) => {
-          if (error) {
-            console.log(error);
-            res.status(400).json({ error: "File upload failed" });
-          }
-          if (data === undefined) {
-            console.log("Error: No File Selected!");
-            res.json({ error: "No File Selected" });
-          }
-          console.log("AWS UPLOAD RES DATA");
-          product.file.url = data.Location;
-          product.file.key = data.Key;
-          product.file.name = item.name;
-          product.file.contentType = item.type;
-        });
-      }
+    let { photo } = files;
+
+    if (photo) {
+      //upload image to s3
+      s3.upload(uploadParams("posts", photo), (error, data) => {
+        if (error) {
+          console.log(error);
+          res.status(400).json({ error: "File upload failed" });
+        }
+        if (data === undefined) {
+          console.log("Error: No File Selected!");
+          res.json({ error: "No File Selected" });
+        }
+        console.log("AWS UPLOAD RES DATA");
+        product.photo.url = data.Location;
+        product.photo.key = data.Key;
+        product.photo.name = photo.name;
+        product.photo.contentType = photo.type;
+      });
     }
 
     post.save((err, result) => {
@@ -146,31 +143,82 @@ exports.updatePost = (req, res, next) => {
     post = _.extend(post, fields);
     post.updated = Date.now();
 
-    if (files.photo) {
-      post.photo.data = fs.readFileSync(files.photo.path);
-      post.photo.contentType = files.photo.type;
-    }
+    let { photo } = files;
 
-    post.save((err, result) => {
-      if (err) {
-        return res.status(400).json({
-          error: err,
+    if (photo) {
+      //delete product photo url
+      s3.deleteObject(deleteParams(post), function (err, data) {
+        // if (err) {console.log("S3 DELETE ERROR DUING", err);
+        if (err) {
+          console.log("S3 DELETE ERROR DUING", err);
+          return res.status(400).json({
+            error: "Post Delete failed",
+          });
+        }
+        console.log("S3 DELETED DURING", data);
+      });
+
+      //upload image to s3
+      s3.upload(uploadParams("posts", photo), (error, data) => {
+        if (error) {
+          console.log(error);
+          res.status(400).json({ error: "File upload failed" });
+        }
+        if (data === undefined) {
+          console.log("Error: No File Selected!");
+          res.json({ error: "No File Selected" });
+        }
+        console.log("AWS UPLOAD RES DATA");
+        product.photo.url = data.Location;
+        product.photo.key = data.Key;
+        product.photo.name = photo.name;
+        product.photo.contentType = photo.type;
+
+        //save to db
+        post.save((err, result) => {
+          if (err) {
+            return res.status(400).json({
+              error: err,
+            });
+          }
+          res.json(result);
         });
-      }
-      res.json(post);
-    });
+      });
+    } else {
+      //save to db
+      post.save((err, result) => {
+        if (err) {
+          return res.status(400).json({
+            error: err,
+          });
+        }
+        res.json(result);
+      });
+    }
   });
 };
 
 exports.deletePost = (req, res) => {
   let post = req.post;
-  post.remove((err, post) => {
+  post.remove((err, thepost) => {
     if (err) {
       return res.status(400).json({
         error: err,
       });
     }
-    res.json({
+
+    // remove the existing image from s3 before uploading new/updated one
+    s3.deleteObject(deleteParams(thepost), function (err, data) {
+      if (err) {
+        console.log("S3 DELETE ERROR DUING", err);
+        return res.status(400).json({
+          error: "Post Delete failed",
+        });
+      }
+      console.log("S3 DELETED DURING", data); // deleted
+    });
+
+    res.status(200).json({
       message: "Post deleted successfully",
     });
   });
