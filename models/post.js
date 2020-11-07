@@ -10,7 +10,7 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  file: {
+  photo: {
     url: String,
     key: String,
     name: String,
