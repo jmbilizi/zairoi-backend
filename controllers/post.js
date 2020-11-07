@@ -40,7 +40,7 @@ exports.getPosts = async (req, res) => {
         .populate("comments", "text created")
         .populate("comments.postedBy", "_id name role")
         .populate("postedBy", "_id name role")
-        .select("_id title body created likes")
+        .select("_id title body created likes photo")
         .limit(perPage)
         .sort({ created: -1 });
     })
