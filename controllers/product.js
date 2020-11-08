@@ -71,7 +71,7 @@ exports.create = (req, res) => {
       });
     }
     // upload image to s3
-    s3.upload(uploadParams("products", photo), (error, data) => {
+    s3.upload(uploadParams("products", photo, "image/*"), (error, data) => {
       if (error) {
         console.log(error);
         res.status(400).json({ error: "File upload failed" });
@@ -197,7 +197,7 @@ exports.update = (req, res) => {
       });
 
       //upload the new photo to s3
-      s3.upload(uploadParams("products", photo), (error, data) => {
+      s3.upload(uploadParams("products", photo, "image/*"), (error, data) => {
         if (error) {
           console.log(error);
           res.status(400).json({ error: "File upload failed" });

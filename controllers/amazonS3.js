@@ -10,13 +10,13 @@ exports.s3 = new aws.S3({
 });
 
 // upload image to s3
-exports.uploadParams = (folder, file) => {
+exports.uploadParams = (folder, file, type) => {
   return {
     Bucket: process.env.AWS_BUCKET_NAME,
     Key: `${folder}/${file.size}${Date.now()}`,
     Body: fs.readFileSync(file.path),
     ACL: "public-read",
-    ContentType: `image/*`,
+    ContentType: type,
   };
 };
 

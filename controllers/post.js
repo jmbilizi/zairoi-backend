@@ -69,7 +69,7 @@ exports.createPost = (req, res, next) => {
 
     if (photo) {
       //upload image to s3
-      s3.upload(uploadParams("posts", photo), (error, data) => {
+      s3.upload(uploadParams("posts", photo, photo.mimetype), (error, data) => {
         if (error) {
           console.log(error);
           res.status(400).json({ error: "File upload failed" });
@@ -169,7 +169,7 @@ exports.updatePost = (req, res, next) => {
       });
 
       //upload image to s3
-      s3.upload(uploadParams("posts", photo), (error, data) => {
+      s3.upload(uploadParams("posts", photo, photo.mimetype), (error, data) => {
         if (error) {
           console.log(error);
           res.status(400).json({ error: "File upload failed" });
