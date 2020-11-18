@@ -21,7 +21,7 @@ var ChatSchema = new mongoose.Schema({
     default: Date.now,
   },
   isActive: { type: Boolean, default: false },
-  status: string,
+  status: String,
 });
 
 module.exports = mongoose.model("Chat", ChatSchema);
