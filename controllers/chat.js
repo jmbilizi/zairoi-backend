@@ -1,8 +1,5 @@
 const Message = require("../models/message");
 const mongoose = require("mongoose");
-const http = require("http").Server(app);
-const io = require("socket.io")(http);
-const formidable = require("formidable");
 const Conversation = require("../models/chat");
 
 // Get conversations list
