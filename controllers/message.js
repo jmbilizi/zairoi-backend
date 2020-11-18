@@ -4,6 +4,23 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const formidable = require("formidable");
 
+//post by id
+exports.messageById = (req, res, next, id) => {
+  Message.findById(id)
+    .populate("sender", "_id name role photo")
+    .populate("receivers.receiver", "_id name role photo")
+    .select("_id chat sender receivers body time delivered is_group_message likes")
+    .exec((err, message) => {
+      if (err || !message) {
+        return res.status(400).json({
+          error: err,
+        });
+      }
+      req.message = message;
+      next();
+    });
+};
+
 // with pagination
 exports.getMessages = async (req, res) => {
   Message.find().exec((err, data) => {
