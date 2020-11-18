@@ -33,6 +33,7 @@ mongoose
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");
+const messageRoutes = require("./routes/message");
 const categoryRoutes = require("./routes/category");
 const productRoutes = require("./routes/product");
 const braintreeRoutes = require("./routes/braintree");
@@ -55,6 +56,7 @@ app.use(function (req, res, next) {
 
 // middleware
 app.use("/api", postRoutes);
+app.use("/api", messageRoutes);
 app.use("/api", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api", categoryRoutes);
