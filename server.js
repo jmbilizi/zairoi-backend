@@ -18,35 +18,6 @@ const server = app.listen(port, () => {
 //socket
 const io = require("socket.io").listen(server);
 
-// const socketsConected = new Set();
-
-// io.on("connection", onConnected);
-
-// function onConnected(socket) {
-//   // console.log("Socket connected", socket.id);
-//   socketsConected.add(socket.id);
-//   console.log(socketsConected.size);
-//   console.log(socketsConected);
-//   io.emit("clients-total", socketsConected.size);
-
-//   socket.on("disconnect", () => {
-//     console.log("Socket disconnected", socket.id);
-//     socketsConected.delete(socket.id);
-//     console.log(socketsConected.size);
-//     console.log(socketsConected);
-//     io.emit("clients-total", socketsConected.size);
-//   });
-
-//   // socket.on("message", (data) => {
-//   //   // console.log(data)
-//   //   socket.broadcast.emit("chat-message", data);
-//   // });
-
-//   // socket.on("feedback", (data) => {
-//   //   socket.broadcast.emit("feedback", data);
-//   // });
-// }
-
 // connect to db
 mongoose
   .connect(process.env.MONGO_URI, {
