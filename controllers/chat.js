@@ -6,7 +6,7 @@ const formidable = require("formidable");
 const Conversation = require("../models/chat");
 
 // Get conversations list
-router.get("/chat", (req, res) => {
+exports.chat = (req, res) => {
   let from = req.profile;
   Conversation.aggregate([
     {
@@ -34,11 +34,11 @@ router.get("/chat", (req, res) => {
         res.send(chat);
       }
     });
-});
+};
 
 // Get messages from conversation
 // based on to & from
-router.get("/chat/query", (req, res) => {
+exports.chatQuery = (req, res) => {
   let user1 = req.profile;
   let user2 = mongoose.Types.ObjectId(req.query.userId);
   Message.aggregate([
@@ -83,4 +83,4 @@ router.get("/chat/query", (req, res) => {
         res.send(messages);
       }
     });
-});
+};
