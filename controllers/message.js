@@ -1,8 +1,6 @@
 const Message = require("../models/message");
 const Conversation = require("../models/chat");
 const mongoose = require("mongoose");
-const http = require("http").Server(app);
-const io = require("socket.io")(http);
 const formidable = require("formidable");
 
 //post by id
