@@ -4,6 +4,7 @@ const fs = require("fs");
 const Product = require("../models/product");
 const { errorHandler } = require("../helpers/dbErrorHandler");
 const { getFileType, s3, uploadParams, deleteParams } = require("./amazonS3");
+const { FileArray } = require("express-fileupload");
 require("dotenv").config();
 
 exports.productById = (req, res, next, id) => {
@@ -50,53 +51,67 @@ exports.create = (req, res) => {
       });
     }
 
-    let product = new Product(fields);
+    const product = new Product(fields);
 
     req.profile.hashed_password = undefined;
     req.profile.salt = undefined;
     product.soldBy = req.profile;
 
-    let { photo } = files;
-    // 1kb = 1000
-    // 1mb = 1000000
-    // console.log("FILES PHOTO: ", files.photo);
-    if (!photo) {
+    const filesArray = Object.values(files);
+    //console.log("filesArray", filesArray);
+    const photos = new Array();
+
+    if (!Array.isArray(filesArray) || !filesArray.length) {
+      // array empty or does not exist
       return res.status(400).json({
         error: "All fields are required",
       });
     }
-    if (photo.size > 20000000) {
-      return res.status(400).json({
-        error: "Image should be less than 2mb in size",
+
+    for (let i = 0; i < filesArray.length; i++) {
+      if (filesArray[i].size > 20000000) {
+        return res.status(400).json({
+          error: "Image should be less than 2mb in size, one of them is above",
+        });
+      }
+    }
+
+    for (let item of filesArray) {
+      awsfileUpload(item);
+    }
+
+    // upload images to s3
+    function awsfileUpload(file) {
+      s3.upload(uploadParams("products", file, "image/*"), (error, data) => {
+        if (error) {
+          console.log(error);
+          res.status(400).json({ error: "File upload failed" });
+        }
+        if (data === undefined) {
+          console.log("Error: No File Selected!");
+          res.json({ error: "No File Selected" });
+        }
+        //console.log("AWS UPLOAD RES DATA");
+
+        product.photo.push({
+          url: data.Location,
+          key: data.Key,
+          name: file.name,
+          contentType: file.type,
+        });
+
+        //save to db
+        product.save((err, result) => {
+          if (err) {
+            console.log("PRODUCT CREATE ERROR ", err);
+            return res.status(400).json({
+              error: errorHandler(err),
+            });
+          }
+          res.json(result);
+        });
       });
     }
-    // upload image to s3
-    s3.upload(uploadParams("products", photo, "image/*"), (error, data) => {
-      if (error) {
-        console.log(error);
-        res.status(400).json({ error: "File upload failed" });
-      }
-      if (data === undefined) {
-        console.log("Error: No File Selected!");
-        res.json({ error: "No File Selected" });
-      }
-      console.log("AWS UPLOAD RES DATA");
-      product.photo.url = data.Location;
-      product.photo.key = data.Key;
-      product.photo.name = photo.name;
-      product.photo.contentType = photo.type;
-
-      //save to db
-      product.save((err, result) => {
-        if (err) {
-          console.log("PRODUCT CREATE ERROR ", err);
-          return res.status(400).json({
-            error: errorHandler(err),
-          });
-        }
-        res.json(result);
-      });
-    });
   });
 };
 
