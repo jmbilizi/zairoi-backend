@@ -26,18 +26,8 @@ const { userById } = require("../controllers/user");
 router.get("/product/:productId", read);
 router.post("/product/create/:userId", requireSignin, create);
 router.get("/products/by/:userId", requireSignin, productsByUser);
-router.delete(
-  "/product/:productId/:userId",
-  requireSignin,
-  isSeller,
-  remove
-);
-router.put(
-  "/product/:productId/:userId",
-  requireSignin,
-  isSeller,
-  update
-);
+router.delete("/product/:productId/:userId", requireSignin, isSeller, remove);
+router.put("/product/:productId/:userId", requireSignin, isSeller, update);
 
 router.get("/products", list);
 router.get("/products/search", listSearch);
